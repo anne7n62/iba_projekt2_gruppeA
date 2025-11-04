@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vejrdata</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Istok+Web:wght@300;400;600;700&display=swap"/>
+</head>
+<body>
+  <div id="tid">--:--</div>
+  <pre id="vejr">Henter vejr...</pre>
+
+<script>
+const out = document.getElementById("vejr");
+const clockEl = document.getElementById("tid");
+
+const PROXY_URL = "http://localhost:3000/dmi";
+const FETCH_INTERVAL_MS = 10 * 60 * 1000; // 10 min
+
+let cachedData = null;
+let lastRenderedKey = null;
+
+function fmtLocalTimeISO(iso){
+  if (!iso) return "Ukendt tid";
+  return new Date(iso).toLocaleString("da-DK", {
+    day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit"
+  });
+}
+
+async function fetchWithTimeout(url, ms = 15000){
+  const ac = new AbortController();
+  const to = setTimeout(() => ac.abort(), ms);
+  try { return await fetch(url, { signal: ac.signal }); }
+  finally { clearTimeout(to); }
+}
+
+function pickLatestByParam(features, param){
+  return features
+    .map(f => f?.properties)
+    .filter(p => p && p.parameterId === param && p.observed)
+    .sort((a,b) => Date.parse(b.observed) - Date.parse(a.observed))
+    [0] || null;
+}
+
+async function fetchAndRender(){
+  out.textContent = "Henter vejr...";
+  try {
+    const r = await fetchWithTimeout(PROXY_URL, 20000);
+    const d = await r.json();
+    cachedData = d;
+    render(d);
+  } catch {
+    out.textContent = "Kunne ikke hente data";
+  }
+}
+
+function render(d){
+  const features = d?.features || [];
+  if (!features.length){
+    out.textContent = "Ingen data";
+    return;
+  }
+
+  const temp     = pickLatestByParam(features, "temp_dry");
+  const windSpd  = pickLatestByParam(features, "wind_speed");
+  const precip10 = pickLatestByParam(features, "precip_dur_past10min");
+
+  const times = [temp, windSpd, precip10].filter(Boolean).map(p => p.observed);
+  const newest = times.sort((a,b) => Date.parse(b)-Date.parse(a))[0];
+
+  if (newest && newest === lastRenderedKey) return;
+  lastRenderedKey = newest;
+
+  const v = (p, suf) => p ? `${p.value} ${suf}` : `— ${suf}`;
+
+  out.textContent =
+`Seneste måling: ${fmtLocalTimeISO(newest)}
+Temperatur: ${v(temp,"°C")}
+Vind:       ${v(windSpd,"m/s")}
+Nedbør:     ${v(precip10,"mm")}`;
+}
+
+function updateClock(){
+  clockEl.textContent = `Aktuel tid: ${
+    new Date().toLocaleTimeString("da-DK",{hour:"2-digit",minute:"2-digit"})
+  }`;
+  if (cachedData) render(cachedData);
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  updateClock();
+  setInterval(updateClock, 60_000);
+  fetchAndRender();
+  setInterval(fetchAndRender, FETCH_INTERVAL_MS);
+});
+</script>
+</body>
+</html>
+
+
