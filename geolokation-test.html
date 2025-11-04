@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="da">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mit Vejr</title>
+  </head>
+  <body>
+    <h2>🌤️ Vejr App</h2>
+    <p id="status">Finder din position...</p>
+
+    <div id="manual" style="display: none">
+      <label for="byInput">Eller søg efter en by:</label><br />
+      <input list="byer" id="byInput" placeholder="Skriv bynavn..." />
+      <datalist id="byer">
+        <option value="København"></option>
+        <option value="Aarhus"></option>
+        <option value="Odense"></option>
+        <option value="Aalborg"></option>
+        <option value="Esbjerg"></option>
+      </datalist>
+      <button id="søg">Søg</button>
+    </div>
+
+    <p id="resultat"></p>
+
+    <script>
+      const status = document.getElementById("status");
+      const resultat = document.getElementById("resultat");
+      const manualDiv = document.getElementById("manual");
+
+      // Start når siden er klar
+      document.addEventListener("DOMContentLoaded", () => {
+        if ("geolocation" in navigator) {
+          navigator.geolocation.getCurrentPosition(success, error);
+        } else {
+          status.textContent = "Din browser understøtter ikke geolokation.";
+          manualDiv.style.display = "block";
+        }
+      });
+
+      // Hvis bruger tillader position
+      async function success(position) {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        status.textContent = `Din position: ${lat.toFixed(2)}, ${lon.toFixed(
+          2
+        )}`;
+
+        // Her kan du kalde DMI's API — foreløbig viser vi bare lat/lon:
+        resultat.textContent = `Vejret hentes for dine koordinater...`;
+      }
+
+      // Hvis bruger nægter geolokation
+      function error() {
+        status.textContent = "Brugeren afviste geolokalisering.";
+        manualDiv.style.display = "block";
+      }
+
+      // Hvis brugeren selv søger efter by
+      document.getElementById("søg").addEventListener("click", async () => {
+        const by = document.getElementById("byInput").value;
+        if (!by) return alert("Indtast et bynavn");
+
+        status.textContent = `Slår op for: ${by}`;
+        const coords = await findCity(by);
+
+        if (coords) {
+          resultat.textContent = `By: ${
+            coords.name
+          }, Koordinater: ${coords.latitude.toFixed(
+            2
+          )}, ${coords.longitude.toFixed(2)}`;
+          // Her kan du sende coords.latitude / coords.longitude videre til DMI’s API
+        } else {
+          resultat.textContent = "By ikke fundet.";
+        }
+      });
+
+      // Geocoding — find by via Open-Meteo
+      async function findCity(byNavn) {
+        const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(
+          byNavn
+        )}&count=1&language=da`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (data.results && data.results.length > 0) {
+          return data.results[0];
+        } else {
+          return null;
+        }
+      }
+    </script>
+  </body>
+</html>
