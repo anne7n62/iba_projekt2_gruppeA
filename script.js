@@ -61,7 +61,8 @@ console.log("var current", currentCoords);
       }
 
 
-      // INDTAST BY SELV
+      // -- INDTAST BY SELV
+      // TODO - få skrevet frem i en form for dropdown istedet
 
 cityInput.addEventListener("input", async () => {
   const query = cityInput.value.trim();
@@ -110,33 +111,6 @@ cities.forEach(cityItem => {
       });
 
 
-
-
-//   // Når man trykker på submit
-//   form.addEventListener("submit", (e) => {
-//     e.preventDefault();
-
-//     // Hent lokation
-//     let lokation = {};
-//     if (geoEnabled && currentCoords) {
-//       lokation = currentCoords;
-//     } else {
-//       alert("Slå geolokation til, før du fortsætter.");
-//       return;
-//     }
-
-//     // Gem i localStorage
-//     // localStorage.setItem("køn", køn);
-//     // localStorage.setItem("lokation", JSON.stringify(lokation));
-
-//     // Kalder funktion (for debugging)
-//     setWeather(lokation);
-
-//     // Gå videre til næste side
-//     window.location.href = "vejret.html";
-//   });
-
-
 // --- FORM SUBMIT ---
 form.addEventListener("submit", (e) => {
   e.preventDefault();
@@ -147,18 +121,27 @@ form.addEventListener("submit", (e) => {
   } else {
     alert("Vælg en by eller slå geolokation til.");
   }
+
+  //     // Gem i localStorage
+//     // localStorage.setItem("køn", køn);
+//     // localStorage.setItem("lokation", JSON.stringify(lokation));
+
+  // Gå videre til næste side - sender ikke pt data med.. 
+  //window.location.href = "vejret.html";
+
+
 });
 
 
 
-// --- FETCH VEJRET ---
+// --- FETCH VEJRET OG UDSKRIV---
 async function setWeather(lokation) {
   const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lokation.lat}&lon=${lokation.lon}&appid=${apiKey}&units=metric&lang=da`;
   try {
     const res = await fetch(url);
     const data = await res.json();
     console.log("VEJRDATA:", data);
-    // Du kan fx vise vejret på siden:
+    //vise vejret
     document.getElementById("weatherOutput").textContent =
       `${data.name}: ${data.weather[0].description}, ${data.main.temp}°C`;
   } catch (err) {
