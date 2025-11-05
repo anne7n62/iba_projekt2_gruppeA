@@ -1,7 +1,3 @@
-:root {
-  --bg1: rgb(86, 175, 207);
-  --bg2: rgb(1, 60, 161);
-}
 
  html, body { height: 100%; }
     body{
@@ -16,17 +12,18 @@
   border:3px solid #000;
   border-radius:30px;
   overflow:hidden;
-  background: linear-gradient(180deg, var(--bg1) 0%, var(--bg1) 40%, var(--bg2) 100%);
+  background: linear-gradient(180deg,rgb(86, 175, 207) 40%,rgb(1, 60, 161) 600%);
   background: var(--bg1);
   position:relative;
 }
 
-.mobileApp{
+.mobileApp {
   height:100%;
   overflow:auto;
   padding:20px 20px 32px;
-  background: linear-gradient(180deg, var(--bg1) 0%, var(--bg2) 100%);
-  color:#fff;
+  /* background: linear-gradient(180deg, var(--bg1) 0%, var(--bg2) 100%); */
+  color: #fff;
+  background: rgb(92, 190, 255);
 }
 
 h1{

@@ -17,30 +17,22 @@
 
 
     <form id="weatherForm">
-      <fieldset id="genderDiv">
-        <legend>Køn</legend>
-        <input type="radio" name="gender" id="selectMale" value="mand" />
-        <label for="selectMale">Mand</label>
-
-        <input type="radio" name="gender" id="selectFemale" value="kvinde" />
-        <label for="selectFemale">Kvinde</label>
-      </fieldset>
+ 
         
-      <fieldset id="locationDiv">
+      <div id="locationWrapper">
         <legend>Lokation</legend>
 
         <input type="text" id="selectCity">
+        <button type="button" id="geoStatus">📍 Automatisk lokation: til</button>
+         <p>*Automatisk lokation kræver din tilladelse i browseren.</p>
 
-
-      <fieldset>
-
-        
-         <button type="button" id="geoStatus">Geolokation: slået til</button>
+      <div> 
+        <button type="submit">Fortsæt</button>
       </form>
 
-      <p>*Geolokation kræver din tilladelse i browseren.</p>
 </div>
-</div>
+ 
+
 
 
 

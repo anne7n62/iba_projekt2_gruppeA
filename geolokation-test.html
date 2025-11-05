@@ -30,16 +30,7 @@
 
       <fieldset>
         <legend>Lokation</legend>
-        <!-- <label for="byDropdown">Vælg by manuelt:</label><br /> -->
-        <select id="byDropdown">
-          <option value="">-- Vælg en by --</option>
-          <option value="København">København</option>
-          <option value="Aarhus">Aarhus</option>
-          <option value="Odense">Odense</option>
-          <option value="Aalborg">Aalborg</option>
-          <option value="Esbjerg">Esbjerg</option>
-        </select>
-        <br /><br />
+      <input type="text" id="selectCity">
         <button type="button" id="geoStatus">Geolokation: forsøger...</button>
       </fieldset>
 
@@ -50,119 +41,97 @@
     <p id="resultat"></p>
 
     <script>
-      const geoStatusBtn = document.getElementById("geoStatus");
-      const byDropdown = document.getElementById("byDropdown");
-      const resultat = document.getElementById("resultat");
-      const form = document.getElementById("vejrForm");
+    const apiKey = "328576f875ac77cda31866cea4f13252";
+const geoStatusBtn = document.getElementById("geoStatus");
+const form = document.getElementById("weatherForm");
+const selectCity = document.getElementById("selectCity");
+const suggestionBox = document.createElement("div");
+suggestionBox.classList.add("suggestions");
+selectCity.parentNode.appendChild(suggestionBox);
 
-      let geoEnabled = false;
-      let currentCoords = null;
+let geoEnabled = false;
+let currentCoords = null;
 
-      // By-koordinater: TO DO: Arbejd videre med denne. Hvordan fungerer det med
-      const byerKoordinater = {
-        København: { lat: 55.68, lon: 12.57 },
-        Aarhus: { lat: 56.16, lon: 10.21 },
-        Odense: { lat: 55.4, lon: 10.38 },
-        Aalborg: { lat: 57.05, lon: 9.93 },
-        Esbjerg: { lat: 55.47, lon: 8.45 },
-      };
+// --- GEOLOKATION ---
+document.addEventListener("DOMContentLoaded", () => {
+  if ("geolocation" in navigator) {
+    navigator.geolocation.getCurrentPosition(success, error);
+  }
+});
 
-      // Forsøg geolokation ved side-load
-      document.addEventListener("DOMContentLoaded", () => {
-        if ("geolocation" in navigator) {
-          navigator.geolocation.getCurrentPosition(success, error, {
-            enableHighAccuracy: true,
-            timeout: 20000,
-            maximumAge: 0,
-          });
-        } else {
-          geoStatusBtn.textContent = "Geolokation ikke understøttet";
-          byDropdown.disabled = false;
-        }
-      });
+function success(position) {
+  geoEnabled = true;
+  currentCoords = {
+    lat: position.coords.latitude,
+    lon: position.coords.longitude,
+  };
+  geoStatusBtn.textContent = "Automatisk lokation: slået til";
+  selectCity.disabled = true;
+  console.log("Geolokation fundet:", currentCoords);
+}
 
-      function success(position) {
-        geoEnabled = true;
-        currentCoords = {
-          lat: position.coords.latitude,
-          lon: position.coords.longitude,
-        };
-        geoStatusBtn.textContent = "Geolokation: slået til";
-        byDropdown.disabled = true;
-        resultat.textContent = `Din position: ${currentCoords.lat.toFixed(
-          2
-        )}, ${currentCoords.lon.toFixed(2)}`;
-      }
+function error() {
+  geoEnabled = false;
+  currentCoords = null;
+  geoStatusBtn.textContent = "Automatisk lokation: slået fra";
+  selectCity.disabled = false;
+}
 
-      function error() {
-        geoEnabled = false;
-        currentCoords = null;
-        geoStatusBtn.textContent = "Geolokation: slået fra";
-        byDropdown.disabled = false;
-        // resultat.textContent = "Vælg by manuelt.";
-      }
+// --- AUTOCOMPLETE ---
+selectCity.addEventListener("input", async () => {
+  const query = selectCity.value.trim();
+  if (query.length < 2) {
+    suggestionBox.innerHTML = "";
+    return;
+  }
 
-      // Klik på geolokations-knap for at toggle
-      geoStatusBtn.addEventListener("click", () => {
-        if (geoEnabled) {
-          // slå fra
-          geoEnabled = false;
-          currentCoords = null;
-          geoStatusBtn.textContent = "Geolokation: slået fra";
-          byDropdown.disabled = false;
-          resultat.textContent = "Vælg by manuelt.";
-        } else {
-          // forsøger igen
-          geoStatusBtn.textContent = "Geolokation: forsøger...";
-          navigator.geolocation.getCurrentPosition(success, error, {
-            enableHighAccuracy: true,
-            timeout: 20000,
-            maximumAge: 0,
-          });
-        }
-      });
+  const url = `https://api.openweathermap.org/geo/1.0/direct?q=${query}&limit=5&appid=${apiKey}`;
+  const response = await fetch(url);
+  const cities = await response.json();
 
-      // Når form submit
-      form.addEventListener("submit", (e) => {
-        e.preventDefault();
+  suggestionBox.innerHTML = "";
+  cities.forEach(city => {
+    const item = document.createElement("div");
+    item.classList.add("suggestion-item");
+    item.textContent = `${city.name}, ${city.country}`;
+    item.addEventListener("click", () => {
+      selectCity.value = city.name;
+      suggestionBox.innerHTML = "";
+      currentCoords = { lat: city.lat, lon: city.lon };
+      geoEnabled = false; // manuel valg = slå geo fra
+      setWeather(currentCoords);
+    });
+    suggestionBox.appendChild(item);
+  });
+});
 
-        // Hent køn
-        const køn = form.køn.value;
+// --- FORM SUBMIT ---
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+  if (geoEnabled && currentCoords) {
+    setWeather(currentCoords);
+  } else if (currentCoords) {
+    setWeather(currentCoords);
+  } else {
+    alert("Vælg en by eller slå geolokation til.");
+  }
+});
 
-        // Hent lokation
-        let lokation = {};
-        if (geoEnabled && currentCoords) {
-          lokation = currentCoords;
-        } else {
-          const byValg = byDropdown.value;
-          if (byerKoordinater[byValg]) {
-            lokation = byerKoordinater[byValg];
-          } else {
-            alert("Vælg en by eller slå geolokation til.");
-            return;
-          }
-        }
+// --- FETCH VEJRET ---
+async function setWeather(lokation) {
+  const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lokation.lat}&lon=${lokation.lon}&appid=${apiKey}&units=metric&lang=da`;
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    console.log("VEJRDATA:", data);
+    // Du kan fx vise vejret på siden:
+    document.getElementById("weatherOutput").textContent =
+      `${data.name}: ${data.weather[0].description}, ${data.main.temp}°C`;
+  } catch (err) {
+    console.error("Fejl ved hentning af vejrdata:", err);
+  }
+}
 
-        // Gem i localStorage - virker dette?
-        // localStorage.setItem("køn", køn);
-        // localStorage.setItem("lokation", JSON.stringify(lokation));
-
-        // Send til funktioner
-        setVejr(køn, lokation);
-        setKøn(køn, lokation);
-
-        resultat.textContent =
-          "Data gemt og sendt til funktioner. Skifter side når vi trykke på knap";
-      });
-
-      // Placeholder-funktioner
-      function setVejr(lokation) {
-        console.log("funktion1:", køn, lokation);
-      }
-
-      function setKøn(køn) {
-        console.log("funktion2:", køn, lokation);
-      }
     </script>
   </body>
 </html>
