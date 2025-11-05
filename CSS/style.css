@@ -12,7 +12,6 @@
   border:3px solid #000;
   border-radius:30px;
   overflow:hidden;
-  background: linear-gradient(180deg,rgb(86, 175, 207) 40%,rgb(1, 60, 161) 600%);
   background: var(--bg1);
   position:relative;
 }
@@ -23,7 +22,8 @@
   padding:20px 20px 32px;
   /* background: linear-gradient(180deg, var(--bg1) 0%, var(--bg2) 100%); */
   color: #fff;
-  background: rgb(92, 190, 255);
+   /* background: rgb(92, 190, 255);*/
+  background: linear-gradient(180deg,rgb(86, 175, 207) 0%, rgb(86, 175, 207) 20%,rgb(1, 60, 161) 100%);
 }
 
 h1{
@@ -45,14 +45,6 @@ form{ display:grid; gap:12px; }
   padding:12px;
   border-radius:12px;
   margin-bottom:12px;
-}
-
-#selectCity {
-  width:100%;
-  padding:10px 12px;
-  border:1px solid var(--border);
-  border-radius:10px;
-  outline:none;
 }
 
 #selectCity:focus{
@@ -80,3 +72,40 @@ input[type="radio"]{
 #geoStatus:active{
   transform:scale(.98);
 }
+
+/* Suggestionbox og søgefunktion */
+
+#selectCity {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+}
+
+
+#suggestionBox {
+  list-style: none;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  position: absolute;
+  width: calc(100% - 40px);
+  margin-top: 5px;
+  max-height: 200px;
+  overflow-y: auto;
+  display: none;
+  color: black;
+}
+
+#suggestionBox li {
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+}
+
+#suggestionBox li:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+/* vejret.html */

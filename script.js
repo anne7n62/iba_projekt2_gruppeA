@@ -1,14 +1,15 @@
+
 const apiKey = "328576f875ac77cda31866cea4f13252";
+
+function saveCoords(coords) {
+  localStorage.setItem("weather.coords", JSON.stringify(coords));
+}
 
 // DOM-elementer
 const cityInput = document.getElementById("selectCity");
 const geoStatusBtn = document.getElementById("geoStatus");
 const form = document.getElementById("weatherForm");
-
-// Dynamisk forslag-boks
-const suggestionBox = document.createElement("div");
-suggestionBox.classList.add("suggestions");
-cityInput.parentNode.appendChild(suggestionBox);
+const suggestionBox = document.getElementById("suggestionBox")
 
 
 // let city = document.getElementById("selectCity").value;
@@ -43,6 +44,9 @@ console.log("var current", currentCoords);
           lat: position.coords.latitude,
           lon: position.coords.longitude,
         };
+
+        saveCoords(currentCoords); 
+
         //knap styling
         geoStatusBtn.textContent = "Automatisk lokation: slået til";
         cityInput.disabled = true;
@@ -67,6 +71,7 @@ console.log("var current", currentCoords);
 cityInput.addEventListener("input", async () => {
   const query = cityInput.value.trim();
   if (query.length < 2) {
+    suggestionBox.style.display = "none";
     suggestionBox.innerHTML = "";
     return;
   }
@@ -76,18 +81,24 @@ cityInput.addEventListener("input", async () => {
   const cities = await response.json();
 
   suggestionBox.innerHTML = "";
-cities.forEach(cityItem => {
-  const item = document.createElement("div");
-  item.textContent = `${cityItem.name}, ${cityItem.country}`;
-  item.addEventListener("click", () => {
-    cityInput.value = cityItem.name;
-    suggestionBox.innerHTML = "";
-    currentCoords = { lat: cityItem.lat, lon: cityItem.lon };
-    geoEnabled = false;
-    setWeather(currentCoords);
-  });
-  suggestionBox.appendChild(item);
-});
+  if (cities.length > 0) {
+    suggestionBox.style.display = "block";
+    cities.forEach(cityItem => {
+      const li = document.createElement("li");
+      li.textContent = `${cityItem.name}, ${cityItem.country}`;
+      li.addEventListener("click", () => {
+        cityInput.value = cityItem.name;
+        suggestionBox.style.display = "none";
+        currentCoords = { lat: cityItem.lat, lon: cityItem.lon };
+        saveCoords(currentCoords);
+        geoEnabled = false;
+        setWeather(currentCoords);
+      });
+      suggestionBox.appendChild(li);
+    });
+  } else {
+    suggestionBox.style.display = "none";
+  }
 });
 
 
@@ -122,7 +133,7 @@ form.addEventListener("submit", (e) => {
     alert("Vælg en by eller slå geolokation til.");
   }
 
-  //     // Gem i localStorage
+  //     // Gem i localStorage 
 //     // localStorage.setItem("køn", køn);
 //     // localStorage.setItem("lokation", JSON.stringify(lokation));
 

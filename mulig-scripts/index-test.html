@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>vejret</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script-inspiration.js" defer></script>
+</head>
+<body>
+      <header class="header">
+    <h1 class="app-title">Weather App</h1>
+  </header>
+
+  <main class="main">
+    <div class="search-container">
+      <input type="text" id="cityInput" placeholder="Search city..." autocomplete="off">
+      <ul id="suggestionList"></ul>
+      <button id="geoButton">Use my location</button>
+    </div>
+
+   <div class="weather-card" id="weatherCard">
+  <h2 id="cityName">Select a city</h2>
+  <div class="temp-info">
+    <img id="weatherIcon" src="" alt="" class="weather-icon">
+    <p id="temperature"></p>
+  </div>
+  <p id="description"></p>
+
+  <div class="extra-info">
+    <p><strong>Feels like:</strong> <span id="feelsLike"></span></p>
+    <p><strong>Wind:</strong> <span id="windSpeed"></span></p>
+    <p><strong>Max temp:</strong> <span id="tempMax"></span></p>
+    <p><strong>Min temp:</strong> <span id="tempMin"></span></p>
+  </div>
+</div>
+
+
+  </main>
+</body>
+</html>
