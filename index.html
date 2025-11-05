@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vejret </title>
+    <link rel="stylesheet" href="CSS/style.css">
+    <script src="script.js" defer></script>
+    <script src="https://kit.fontawesome.com/e9eeb44cb1.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    
+  <div class="mobile-wrapper">
+<div class="mobileApp">
+    <h1>Velkommen</h1>
+    <p>Vælg dit køn og  (eller brug geolokation). Derefter får du temperatur, vejrtype og tøjforslag.</p>
+
+
+    <form id="weatherForm">
+      <fieldset id="genderDiv">
+        <legend>Køn</legend>
+        <input type="radio" name="gender" id="selectMale" value="mand" />
+        <label for="selectMale">Mand</label>
+
+        <input type="radio" name="gender" id="selectFemale" value="kvinde" />
+        <label for="selectFemale">Kvinde</label>
+      </fieldset>
+        
+      <fieldset id="locationDiv">
+        <legend>Lokation</legend>
+
+        <input type="text" id="selectCity">
+
+
+      <fieldset>
+
+        
+         <button type="button" id="geoStatus">Geolokation: slået til</button>
+      </form>
+
+      <p>*Geolokation kræver din tilladelse i browseren.</p>
+</div>
+</div>
+
+
+
+</body>
+</html>
