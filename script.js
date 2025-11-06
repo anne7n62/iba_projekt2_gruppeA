@@ -1,73 +1,60 @@
-
 const apiKey = "328576f875ac77cda31866cea4f13252";
-
-function saveCoords(coords) {
-  localStorage.setItem("weather.coords", JSON.stringify(coords));
-}
-
+let geoEnabled = false;
+let currentCoords = null;
+console.log("var current", currentCoords);
 // DOM-elementer
 const cityInput = document.getElementById("selectCity");
 const geoStatusBtn = document.getElementById("geoStatus");
 const form = document.getElementById("weatherForm");
-const suggestionBox = document.getElementById("suggestionBox")
+const suggestionBox = document.getElementById("suggestionBox");
 
+function saveCoords(coords) {
+  localStorage.setItem("weather.coords", JSON.stringify(coords));
+  console.log("setItem, weathercoords", weather.coords);
+}
 
-// let city = document.getElementById("selectCity").value;
-// const api = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+// -- SØG EFTER GEOLOKATION
+document.addEventListener("DOMContentLoaded", () => {
+  if ("geolocation" in navigator) {
+    navigator.geolocation.getCurrentPosition(success, error, {
+      enableHighAccuracy: true,
+      timeout: 20000,
+      maximumAge: 0,
+    });
+  } else {
+    geoStatusBtn.textContent = "Automatisk lokation understøttet";
+    cityInput.disabled = false;
+  }
+});
 
+// Geolokation: Modtager koordinator
+function success(position) {
+  geoEnabled = true;
+  currentCoords = {
+    lat: position.coords.latitude,
+    lon: position.coords.longitude,
+  };
 
-//Geolokation variabler
-// const geoStatusBtn = document.getElementById("geoStatus");
-// const form = document.getElementById("weatherForm");
-let geoEnabled = false;
-let currentCoords = null;
-console.log("var current", currentCoords);
+  saveCoords(currentCoords);
+  geoStatusBtn.textContent = "Automatisk lokation: slået til";
+  cityInput.disabled = true;
 
-      // GEOLOKATION
-      document.addEventListener("DOMContentLoaded", () => {
-        if ("geolocation" in navigator) {
-          navigator.geolocation.getCurrentPosition(success, error, {
-            enableHighAccuracy: true,
-            timeout: 20000,
-            maximumAge: 0,
-          });
-        } else {
-          geoStatusBtn.textContent = "Geolokation ikke understøttet";
-          cityInput.disabled = false;
-        }
-      });
+  console.log(
+    `Din position: ${currentCoords.lat.toFixed(2)}, ${currentCoords.lon.toFixed(
+      2
+    )}`
+  );
+}
 
-      // Geolokation: Modtager koordinator
-      function success(position) {
-        geoEnabled = true;
-        currentCoords = {
-          lat: position.coords.latitude,
-          lon: position.coords.longitude,
-        };
+// Geo slået fra i browser: disable knap
+function error() {
+  geoEnabled = false;
+  currentCoords = null;
+  geoStatusBtn.textContent = "Automatisk lokation: slået fra";
+  cityInput.disabled = false;
+}
 
-        saveCoords(currentCoords); 
-
-        //knap styling
-        geoStatusBtn.textContent = "Automatisk lokation: slået til";
-        cityInput.disabled = true;
-        
-        console.log(`Din position: ${currentCoords.lat.toFixed(
-          2
-        )}, ${currentCoords.lon.toFixed(2)}`);
-      }
-
-      // Geo slået fra i browser: disable knap
-      function error() {
-        geoEnabled = false;
-        currentCoords = null;
-        geoStatusBtn.textContent = "Automatisk lokation: slået fra";
-        cityInput.disabled = false;
-      }
-
-
-      // -- INDTAST BY SELV
-      // TODO - få skrevet frem i en form for dropdown istedet
-
+// -- INDTAST BY SELV - KOM MED FORSLAG
 cityInput.addEventListener("input", async () => {
   const query = cityInput.value.trim();
   if (query.length < 2) {
@@ -80,10 +67,11 @@ cityInput.addEventListener("input", async () => {
   const response = await fetch(url);
   const cities = await response.json();
 
+  //Liste med byforslag
   suggestionBox.innerHTML = "";
   if (cities.length > 0) {
     suggestionBox.style.display = "block";
-    cities.forEach(cityItem => {
+    cities.forEach((cityItem) => {
       const li = document.createElement("li");
       li.textContent = `${cityItem.name}, ${cityItem.country}`;
       li.addEventListener("click", () => {
@@ -101,26 +89,24 @@ cityInput.addEventListener("input", async () => {
   }
 });
 
-
-      // Klik på geolokations-knap for at toggle
-      geoStatusBtn.addEventListener("click", () => {
-        if (geoEnabled) {
-          // slå fra
-          geoEnabled = false;
-          currentCoords = null;
-          geoStatusBtn.textContent = "Automatisk lokation: slået fra";
-          cityInput.disabled = false;
-        } else {
-          // forsøger igen
-          geoStatusBtn.textContent = "Geolokation: forsøger...";
-          navigator.geolocation.getCurrentPosition(success, error, {
-            enableHighAccuracy: true,
-            timeout: 20000,
-            maximumAge: 0,
-          });
-        }
-      });
-
+// Hvis man har godkendt geolokation i browser, kan man frit toggle til/fra
+geoStatusBtn.addEventListener("click", () => {
+  if (geoEnabled) {
+    // slå fra
+    geoEnabled = false;
+    currentCoords = null;
+    geoStatusBtn.textContent = "Automatisk lokation: slået fra";
+    cityInput.disabled = false;
+  } else {
+    // forsøger igen
+    geoStatusBtn.textContent = "Geolokation: forsøger...";
+    navigator.geolocation.getCurrentPosition(success, error, {
+      enableHighAccuracy: true,
+      timeout: 20000,
+      maximumAge: 0,
+    });
+  }
+});
 
 // --- FORM SUBMIT ---
 form.addEventListener("submit", (e) => {
@@ -133,17 +119,9 @@ form.addEventListener("submit", (e) => {
     alert("Vælg en by eller slå geolokation til.");
   }
 
-  //     // Gem i localStorage 
-//     // localStorage.setItem("køn", køn);
-//     // localStorage.setItem("lokation", JSON.stringify(lokation));
-
-  // Gå videre til næste side - sender ikke pt data med.. 
+  // Gå videre til næste side - sender ikke pt data med..
   //window.location.href = "vejret.html";
-
-
 });
-
-
 
 // --- FETCH VEJRET OG UDSKRIV---
 async function setWeather(lokation) {
@@ -152,9 +130,10 @@ async function setWeather(lokation) {
     const res = await fetch(url);
     const data = await res.json();
     console.log("VEJRDATA:", data);
-    //vise vejret
-    document.getElementById("weatherOutput").textContent =
-      `${data.name}: ${data.weather[0].description}, ${data.main.temp}°C`;
+    //vise vejret -slet denne del til sidst (weatheroutput)
+    document.getElementById(
+      "weatherOutput"
+    ).textContent = `${data.name}: ${data.weather[0].description}, ${data.main.temp}°C`;
   } catch (err) {
     console.error("Fejl ved hentning af vejrdata:", err);
   }
