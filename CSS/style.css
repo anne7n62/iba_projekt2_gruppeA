@@ -133,6 +133,10 @@ h1 + p + p::after {
   margin-bottom: 20px;
 }
 
+.search-dropdown{
+  position: relative;
+}
+
 /* Autocomplete dropdown */
 #suggestionBox {
   list-style: none;
@@ -140,14 +144,16 @@ h1 + p + p::after {
   border: 1px solid #e6e6e9;
   border-radius: 12px;
   position: absolute;
-  width: calc(100% - 40px);
-  margin-top: 6px;
+  left: 0;
+  top: 80%;
+  width: 100%;
   max-height: 220px;
   overflow-y: auto;
   display: none;
   color: #111827;
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
   z-index: 5;
+}
 }
 #suggestionBox li {
   padding: 10px 14px;

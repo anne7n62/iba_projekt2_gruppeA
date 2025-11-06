@@ -22,9 +22,11 @@
         
       <div id="locationWrapper">
         <legend>Lokation</legend>
+        <div class="search-dropdown">        
+          <input type="text" id="selectCity" placeholder="Søg efter by..." autocomplete="off">
+          <ul id="suggestionBox"></ul>
+      </div>
 
-        <input type="text" id="selectCity" placeholder="Søg efter by..." autocomplete="off">
-        <ul id="suggestionBox"></ul>
         <button type="button" id="geoStatus">📍 Automatisk lokation: til</button>
          <p>*Automatisk lokation kræver din tilladelse i browseren.</p>
 
