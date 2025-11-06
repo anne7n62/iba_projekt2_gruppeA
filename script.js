@@ -16,7 +16,7 @@ function saveCoords(coords) {
 
 // -- SØG EFTER GEOLOKATION
 document.addEventListener("DOMContentLoaded", () => {
-  if (!geoStatusBtn || !cityInput) return; 
+  if (!geoStatusBtn || !cityInput) return;
   if ("geolocation" in navigator) {
     navigator.geolocation.getCurrentPosition(success, error, {
       enableHighAccuracy: true,
@@ -57,7 +57,7 @@ function error() {
 }
 
 // -- INDTAST BY SELV - KOM MED FORSLAG
-  cityInput?.addEventListener("input", async () => {
+cityInput?.addEventListener("input", async () => {
   const query = cityInput.value.trim();
   if (query.length < 2) {
     suggestionBox.style.display = "none";
@@ -65,12 +65,14 @@ function error() {
     return;
   }
 
-  const url = `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(query)}&limit=5&appid=${apiKey}`;
+  const url = `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(
+    query
+  )}&limit=5&appid=${apiKey}`;
   const response = await fetch(url);
   const cities = await response.json();
 
   //Liste med byforslag
-  if (!suggestionBox) return; 
+  if (!suggestionBox) return;
   suggestionBox.innerHTML = "";
   if (cities.length > 0) {
     suggestionBox.style.display = "block";
@@ -122,21 +124,6 @@ form?.addEventListener("submit", (e) => {
   window.location.href = "vejret.html";
 });
 
-// // --- FETCH VEJRET OG UDSKRIV---
-// async function setWeather(lokation) {
-//   const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lokation.lat}&lon=${lokation.lon}&appid=${apiKey}&units=metric&lang=da`;
-//   try {
-//     const res = await fetch(url);
-//     const data = await res.json();
-//     console.log("VEJRDATA:", data);
-//     //vise vejret -slet denne del til sidst (weatheroutput)
-//     console.log("vejret", `${data.name}: ${data.weather[0].description}, ${data.main.temp}°C`);
-//   } catch (err) {
-//     console.error("Fejl ved hentning af vejrdata:", err);
-//   }
-// }
-
-
 ////////////// VEJRET.HTML ///////////////
 
 // DOM
@@ -151,7 +138,7 @@ const iconBox = document.getElementById("weatherIcon");
 
 const genderMale = document.getElementById("genderMale");
 const genderFemale = document.getElementById("genderFemale");
- 
+
 const outfitList = document.getElementById("outfitList");
 
 genderMale.addEventListener("click", () => {
@@ -180,7 +167,6 @@ genderFemale.addEventListener("click", () => {
   }
 })();
 
-
 // State
 let lastWeather = null;
 
@@ -204,23 +190,25 @@ function loadCoords() {
   }
 }
 
-function setLoading(on) { 
-  if (loader) loader.hidden = !on; 
+function setLoading(on) {
+  if (loader) loader.hidden = !on;
 }
 
 function currentGender() {
-  return genderFemale.getAttribute("aria-pressed") === "true" ? "kvinde" : "mand";
+  return genderFemale.getAttribute("aria-pressed") === "true"
+    ? "kvinde"
+    : "mand";
 }
 
 function updateOutfit() {
   if (!lastWeather) return;
   const temp = lastWeather.main.temp;
-  const id   = lastWeather.weather[0].id;
+  const id = lastWeather.weather[0].id;
   const desc = lastWeather.weather[0].description;
   const type = inferWeatherType(id, desc);
 
   const outfit = getOutfit(currentGender(), temp, type);
-  outfitList.innerHTML = outfit.map(i => `<li>${i}</li>`).join("");
+  outfitList.innerHTML = outfit.map((i) => `<li>${i}</li>`).join("");
 }
 
 // Ikoner (simplificeret)
@@ -229,7 +217,7 @@ const Icons = {
   cloud: () => `☁️`,
   rain: () => `🌧`,
   snow: () => `🌨`,
-  storm: () => `🌪`
+  storm: () => `🌪`,
 };
 
 function inferWeatherType(id, desc = "") {
@@ -246,30 +234,51 @@ function inferWeatherType(id, desc = "") {
   return "sun";
 }
 
-
 // Render UI
 function getOutfit(gender, temp, conditionType) {
   const items = [];
 
   // Temperature rules
- if (temp >= 18) {
+  if (temp >= 18) {
     if (gender === "mand") items.push("👕T-shirt", "🩳Shorts");
     else items.push("👗Kjole");
   } else if (temp >= 12) {
-    if (gender === "mand") items.push("🧥Let jakke", "👔Langærmet bluse", "👖Lange Bukser");
-    else items.push("🧥Jakke", "👖Lange Bukser eller 👗strømpebukser under kjole");
+    if (gender === "mand")
+      items.push("🧥Let jakke", "👔Langærmet bluse", "👖Lange Bukser");
+    else
+      items.push("🧥Jakke", "👖Lange Bukser eller 👗strømpebukser under kjole");
   } else if (temp >= 5) {
-    if (gender === "mand") items.push("🧥Varmt overtøj", "🧤Vanter", "🧣Varmt tøj", "🥾Vinterstøvler");
-    else items.push("🧥Varmt tøj", "👚Sweater", "👖Lange Bukser eller uld strømpebukser under kjole", "🥾Vinterstøvler");
+    if (gender === "mand")
+      items.push(
+        "🧥Varmt overtøj",
+        "🧤Vanter",
+        "🧣Varmt tøj",
+        "🥾Vinterstøvler"
+      );
+    else
+      items.push(
+        "🧥Varmt tøj",
+        "👚Sweater",
+        "👖Lange Bukser eller uld strømpebukser under kjole",
+        "🥾Vinterstøvler"
+      );
   } else if (temp >= 0) {
-    if (gender === "mand") items.push("🧥Varmt overtøj", "🧤Vanter & 🧣Tørklæde", "🧶Uld");
-    else items.push("🧥Varmt overtøj", "🧤Vanter & 🧣Tørlæde", "👖Lange Bukser");
+    if (gender === "mand")
+      items.push("🧥Varmt overtøj", "🧤Vanter & 🧣Tørklæde", "🧶Uld");
+    else
+      items.push("🧥Varmt overtøj", "🧤Vanter & 🧣Tørlæde", "👖Lange Bukser");
   }
 
   switch (conditionType) {
-    case "sun":  items.push("Solbriller"); break;
-    case "rain": items.push("Regnjakke eller paraply"); break;
-    case "snow": items.push("Vinterstøvler"); break;
+    case "sun":
+      items.push("Solbriller");
+      break;
+    case "rain":
+      items.push("Regnjakke eller paraply");
+      break;
+    case "snow":
+      items.push("Vinterstøvler");
+      break;
   }
 
   return items;
@@ -277,20 +286,22 @@ function getOutfit(gender, temp, conditionType) {
 
 function render(data) {
   const temp = data?.main?.temp;
-  const min  = data?.main?.temp_min;
-  const max  = data?.main?.temp_max;
-  const w    = Array.isArray(data?.weather) ? data.weather[0] : {};
-  const id   = w?.id ?? 800;
+  const min = data?.main?.temp_min;
+  const max = data?.main?.temp_max;
+  const w = Array.isArray(data?.weather) ? data.weather[0] : {};
+  const id = w?.id ?? 800;
   const desc = w?.description ?? "";
   const type = inferWeatherType(id, desc);
 
   dateLabel.textContent = formatDate();
   cityLabel.textContent = data?.name ?? "—";
-  tempNow.textContent   = Number.isFinite(temp) ? `${round(temp)}°C` : "—";
-  tempRange.textContent = (Number.isFinite(min) && Number.isFinite(max))
-    ? `Min: ${round(min)}° · Max: ${round(max)}°` : "—";
+  tempNow.textContent = Number.isFinite(temp) ? `${round(temp)}°C` : "—";
+  tempRange.textContent =
+    Number.isFinite(min) && Number.isFinite(max)
+      ? `Min: ${round(min)}° · Max: ${round(max)}°`
+      : "—";
   conditionText.textContent = desc || "—";
-  iconBox.textContent = (Icons[type] ? Icons[type]() : "🌤");
+  iconBox.textContent = Icons[type] ? Icons[type]() : "🌤";
 
   lastWeather = data;
   updateOutfit(); // <-- now paints outfit inside the same box
@@ -325,4 +336,3 @@ async function fetchWeather(coords) {
   }
   fetchWeather(coords);
 })();
-
