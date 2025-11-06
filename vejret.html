@@ -56,6 +56,26 @@
       const genderMale = document.getElementById("genderMale");
       const genderFemale = document.getElementById("genderFemale");
 
+      const outfitList = document.getElementById("outfitList");
+
+      // Event Listeners
+      genderMale.addEventListener("click", () => {
+        genderMale.setAttribute("aria-pressed", "true");
+        genderFemale.setAttribute("aria-pressed", "false");
+        localStorage.setItem("weather.gender", "mand");
+        updateOutfit();
+      });
+
+      genderFemale.addEventListener("click", () => {
+        genderMale.setAttribute("aria-pressed", "false");
+        genderFemale.setAttribute("aria-pressed", "true");
+        localStorage.setItem("weather.gender", "kvinde");
+        updateOutfit();
+      });
+
+      // State
+      let lastWeather = null;
+
       // Helpers
       const round = (n) => Math.round(Number(n));
       const formatDate = (d = new Date()) =>
@@ -74,6 +94,27 @@
         } catch {
           return null;
         }
+      }
+      // Helpers for loading state, gender selection, and outfit updates
+      function setLoading(on) {
+        loader.hidden = !on;
+      }
+
+      function currentGender() {
+        return genderFemale.getAttribute("aria-pressed") === "true"
+          ? "kvinde"
+          : "mand";
+      }
+
+      function updateOutfit() {
+        if (!lastWeather) return;
+        const temp = lastWeather.main.temp;
+        const id = lastWeather.weather[0].id;
+        const desc = lastWeather.weather[0].description;
+        const type = inferWeatherType(id, desc);
+
+        const outfit = getOutfit(currentGender(), temp, type);
+        outfitList.innerHTML = outfit.map((i) => `<li>${i}</li>`).join("");
       }
 
       // Ikoner
@@ -100,6 +141,38 @@
       }
 
       // Render UI
+      function getOutfit(gender, temp, conditionType) {
+        const items = [];
+
+        // Temperature rules
+        if (temp >= 18) {
+          if (gender === "mand") items.push("T-shirt", "Shorts");
+          else items.push("Kjole");
+        } else if (temp >= 12 && temp < 18) {
+          items.push("Let jakke", "Flere lag");
+        } else if (temp >= 5 && temp < 12) {
+          items.push("Varmt overtøj", "Varm jakke");
+        } else if (temp < 0) {
+          items.push("Varmt tøj", "Varm jakke", "Vinterstøvler");
+        }
+
+        // Condition rules
+        switch (conditionType) {
+          case "sun":
+            items.push("Solbriller");
+            break;
+          case "rain":
+            items.push("Regnjakke eller paraply");
+            break;
+          case "snow":
+            items.push("Vinterstøvler");
+            break;
+          // cloud/other: nothing extra
+        }
+
+        return items;
+      }
+
       function render(data) {
         try {
           const temp = data?.main?.temp;
@@ -122,8 +195,11 @@
 
           if (statusMsg) statusMsg.textContent = "Kunne ikke hente vejr ❌";
         }
+        lastWeather = data;
+        updateOutfit(); //  paints outfit inside the same box
       }
 
+      // Fetch weather from coords
       async function fetchWeather(coords) {
         if (!coords) {
           if (statusMsg) statusMsg.textContent = "Kunne ikke hente vejr ❌";

@@ -326,6 +326,36 @@ main > h3 + div {
   flex-wrap: wrap;
 }
 
+/* Tøjforslag box) */
+#genderBox,
+main > h3 + div {
+  align-self: stretch;
+  text-align: left;
+  width: 100%;
+  background: var(--card);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 18px;
+  padding: 14px;
+  display: flex;
+  gap: 8px;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+/* The inner list panel */
+#outfitList {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 12px 12px;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.18);
+  border-radius: 12px;
+}
+
+#outfitList li {
+  margin: 6px 0;
+}
+
 /* Gender segmented buttons */
 #genderMale,
 #genderFemale {

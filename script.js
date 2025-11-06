@@ -1,4 +1,5 @@
 const apiKey = "328576f875ac77cda31866cea4f13252";
+
 let geoEnabled = false;
 let currentCoords = null;
 console.log("var current", currentCoords);
