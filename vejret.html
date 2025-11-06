@@ -1,245 +1,38 @@
 <!DOCTYPE html>
 <html lang="da">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vejret</title>
-    <link rel="stylesheet" href="CSS/style.css" />
+    <link rel="stylesheet" href="CSS/style.css">
     <script src="script.js" defer></script>
-    <script
-      src="https://kit.fontawesome.com/e9eeb44cb1.js"
-      crossorigin="anonymous"
-    ></script>
-  </head>
-  <body>
+    <script src="https://kit.fontawesome.com/e9eeb44cb1.js" crossorigin="anonymous"></script>
+</head>
+<body>
     <div class="mobile-wrapper">
-      <div class="mobileApp">
-        <header>
-          <h1>🌤VejrApp</h1>
-          <button><a href="index.html">Tilbage</a></button>
-        </header>
+    <div class="mobileApp">
+<header>
+    <h1>🌤VejrApp</h1>
+    <button><a href="index.html">Tilbage</a></button>
+ </header>
+    <main>
+ <div id="loader" hidden>Henter vejr…</div>
+  <p id="statusMsg"></p>
+  <p id="dateLabel">—</p>
+  <h2 id="cityLabel">—</h2>
+  <div id="tempNow">—°C</div>
+  <div id="tempRange">Min: —° · Max: —°</div>
+  <div id="conditionText">—</div>
+  <div id="weatherIcon" aria-hidden="true"></div>
 
-        <main>
-          <p id="statusMsg" aria-live="polite"></p>
-          <p id="dateLabel">—</p>
-          <h2 id="cityLabel">—</h2>
-          <div id="tempNow">—°C</div>
-          <div id="tempRange">Min: —° · Max: —°</div>
-          <div id="conditionText">—</div>
-          <div id="weatherIcon" aria-hidden="true"></div>
-
-          <h3>Tøjforslag</h3>
-          <div id="genderBox">
-            <button id="genderMale" type="button" aria-pressed="true">
-              Mand
-            </button>
-            <button id="genderFemale" type="button" aria-pressed="false">
-              Kvinde
-            </button>
-            <ul id="outfitList"></ul>
-          </div>
-        </main>
-      </div>
-    </div>
-
-    <script>
-      const apiKey = "328576f875ac77cda31866cea4f13252";
-
-      // DOM
-      const dateLabel = document.getElementById("dateLabel");
-      const cityLabel = document.getElementById("cityLabel");
-      const tempNow = document.getElementById("tempNow");
-      const tempRange = document.getElementById("tempRange");
-      const conditionText = document.getElementById("conditionText");
-      const iconBox = document.getElementById("weatherIcon");
-
-      const genderMale = document.getElementById("genderMale");
-      const genderFemale = document.getElementById("genderFemale");
-
-      const outfitList = document.getElementById("outfitList");
-
-      // Event Listeners
-      genderMale.addEventListener("click", () => {
-        genderMale.setAttribute("aria-pressed", "true");
-        genderFemale.setAttribute("aria-pressed", "false");
-        localStorage.setItem("weather.gender", "mand");
-        updateOutfit();
-      });
-
-      genderFemale.addEventListener("click", () => {
-        genderMale.setAttribute("aria-pressed", "false");
-        genderFemale.setAttribute("aria-pressed", "true");
-        localStorage.setItem("weather.gender", "kvinde");
-        updateOutfit();
-      });
-
-      // State
-      let lastWeather = null;
-
-      // Helpers
-      const round = (n) => Math.round(Number(n));
-      const formatDate = (d = new Date()) =>
-        d.toLocaleDateString("da-DK", {
-          weekday: "long",
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-        });
-
-      function loadCoords() {
-        const raw = localStorage.getItem("weather.coords");
-        if (!raw) return null;
-        try {
-          return JSON.parse(raw);
-        } catch {
-          return null;
-        }
-      }
-      // Helpers for loading state, gender selection, and outfit updates
-      function setLoading(on) {
-        loader.hidden = !on;
-      }
-
-      function currentGender() {
-        return genderFemale.getAttribute("aria-pressed") === "true"
-          ? "kvinde"
-          : "mand";
-      }
-
-      function updateOutfit() {
-        if (!lastWeather) return;
-        const temp = lastWeather.main.temp;
-        const id = lastWeather.weather[0].id;
-        const desc = lastWeather.weather[0].description;
-        const type = inferWeatherType(id, desc);
-
-        const outfit = getOutfit(currentGender(), temp, type);
-        outfitList.innerHTML = outfit.map((i) => `<li>${i}</li>`).join("");
-      }
-
-      // Ikoner
-      const Icons = {
-        sun: () => `☀️`,
-        cloud: () => `☁️`,
-        rain: () => `🌧`,
-        snow: () => `🌨`,
-        storm: () => `🌪`,
-      };
-
-      function inferWeatherType(id, desc = "") {
-        if (id >= 200 && id < 300) return "storm";
-        if (id >= 600 && id < 700) return "snow";
-        if (id >= 500 && id < 600) return "rain";
-        if (id === 800) return "sun";
-        if (id > 800) return "cloud";
-        const t = desc.toLowerCase();
-        if (t.includes("regn")) return "rain";
-        if (t.includes("sne")) return "snow";
-        if (t.includes("torden")) return "storm";
-        if (t.includes("sky")) return "cloud";
-        return "sun";
-      }
-
-      // Render UI
-      function getOutfit(gender, temp, conditionType) {
-        const items = [];
-
-        // Temperature rules
-        if (temp >= 18) {
-          if (gender === "mand") items.push("T-shirt", "Shorts");
-          else items.push("Kjole");
-        } else if (temp >= 12 && temp < 18) {
-          items.push("Let jakke", "Flere lag");
-        } else if (temp >= 5 && temp < 12) {
-          items.push("Varmt overtøj", "Varm jakke");
-        } else if (temp < 0) {
-          items.push("Varmt tøj", "Varm jakke", "Vinterstøvler");
-        }
-
-        // Condition rules
-        switch (conditionType) {
-          case "sun":
-            items.push("Solbriller");
-            break;
-          case "rain":
-            items.push("Regnjakke eller paraply");
-            break;
-          case "snow":
-            items.push("Vinterstøvler");
-            break;
-          // cloud/other: nothing extra
-        }
-
-        return items;
-      }
-
-      function render(data) {
-        try {
-          const temp = data?.main?.temp;
-          const min = data?.main?.temp_min;
-          const max = data?.main?.temp_max;
-          const w = data?.weather?.[0] || {};
-          const id = w.id ?? 800;
-          const desc = w.description ?? "";
-          const type = inferWeatherType(id, desc);
-
-          if (dateLabel) dateLabel.textContent = formatDate();
-          if (cityLabel) cityLabel.textContent = data?.name ?? "";
-          if (tempNow) tempNow.textContent = `${round(temp)}°C`;
-          if (tempRange)
-            tempRange.textContent = `Min: ${round(min)}° · Max: ${round(max)}°`;
-          if (conditionText) conditionText.textContent = desc;
-          if (iconBox) iconBox.textContent = Icons[type]();
-        } catch (uiErr) {
-          console.error("UI fejl:", uiErr);
-
-          if (statusMsg) statusMsg.textContent = "Kunne ikke hente vejr ❌";
-        }
-        lastWeather = data;
-        updateOutfit(); //  paints outfit inside the same box
-      }
-
-      // Fetch weather from coords
-      async function fetchWeather(coords) {
-        if (!coords) {
-          if (statusMsg) statusMsg.textContent = "Kunne ikke hente vejr ❌";
-          return;
-        }
-
-        setLoading(true);
-
-        try {
-          const url = `https://api.openweathermap.org/data/2.5/weather?lat=${coords.lat}&lon=${coords.lon}&appid=${apiKey}&units=metric&lang=da`;
-          const res = await fetch(url);
-
-          if (!res.ok) {
-            let msg = "Kunne ikke hente vejr ❌";
-            try {
-              const err = await res.json();
-              if (err?.message) msg = "Kunne ikke hente vejr ❌";
-            } catch {}
-            if (statusMsg) statusMsg.textContent = msg;
-            return;
-          }
-
-          const data = await res.json();
-          render(data);
-        } catch (netErr) {
-          console.error("Netværksfejl:", netErr);
-          if (statusMsg) statusMsg.textContent = "Kunne ikke hente vejr ❌";
-        } finally {
-          setLoading(false);
-        }
-      }
-
-      (function () {
-        const coords = loadCoords();
-        if (!coords) {
-          if (statusMsg) statusMsg.textContent = "Kunne ikke hente vejr ❌";
-          return;
-        }
-        fetchWeather(coords);
-      })();
-    </script>
-  </body>
+  <h3>Tøjforslag</h3>
+  <div id="genderBox">
+    <button id="genderMale" type="button" aria-pressed="true">Mand</button>
+    <button id="genderFemale" type="button" aria-pressed="false">Kvinde</button>
+    <ul id="outfitList"></ul>
+  </div>
+  </main>
+ </div>
+ </div>
+</body>
 </html>

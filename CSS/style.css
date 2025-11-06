@@ -383,7 +383,7 @@ main > h3 + div {
 .outfit-list,
 #outfitList {
   margin: 12px 0 0;
-  padding-left: 0;
+  padding-left: 10px;
   list-style: none;
 }
 .outfit-list li,
@@ -410,7 +410,7 @@ main > h3 + div {
   transform: translateX(-50%);
   bottom: 36px;
   background: transparent;
-  color: #1f2a37;
+  color: #ffffff;
   border-radius: 14px;
   padding: 12px 16px;
   font-weight: 800;
