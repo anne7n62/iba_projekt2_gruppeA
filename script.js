@@ -253,17 +253,17 @@ function getOutfit(gender, temp, conditionType) {
 
   // Temperature rules
  if (temp >= 18) {
-    if (gender === "mand") items.push("T-shirt", "Shorts");
-    else items.push("Kjole");
+    if (gender === "mand") items.push("👕T-shirt", "🩳Shorts");
+    else items.push("👗Kjole");
   } else if (temp >= 12) {
-    if (gender === "mand") items.push("Let jakke", "Flere lag", "Lange Bukser");
-    else items.push("Jakke", "Lange Bukser eller strømpebukser under kjole");
+    if (gender === "mand") items.push("🧥Let jakke", "👔Langærmet bluse", "👖Lange Bukser");
+    else items.push("🧥Jakke", "👖Lange Bukser eller 👗strømpebukser under kjole");
   } else if (temp >= 5) {
-    if (gender === "mand") items.push("Varmt overtøj", "Vanter", "Varmt tøj", "Vinterstøvler");
-    else items.push("Varmt tøj", "Sweater", "Lange Bukser eller uld strømpebukser under kjole", "Vinterstøvler");
+    if (gender === "mand") items.push("🧥Varmt overtøj", "🧤Vanter", "🧣Varmt tøj", "🥾Vinterstøvler");
+    else items.push("🧥Varmt tøj", "👚Sweater", "👖Lange Bukser eller uld strømpebukser under kjole", "🥾Vinterstøvler");
   } else if (temp >= 0) {
-    if (gender === "mand") items.push("Varmt overtøj", "Vanter & Hue", "Uld");
-    else items.push("Varmt overtøj", "Vanter & Hue", "Lange Bukser");
+    if (gender === "mand") items.push("🧥Varmt overtøj", "🧤Vanter & 🧣Tørklæde", "🧶Uld");
+    else items.push("🧥Varmt overtøj", "🧤Vanter & 🧣Tørlæde", "👖Lange Bukser");
   }
 
   switch (conditionType) {
